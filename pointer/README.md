@@ -1,3 +1,4 @@
+# Smart Pointer
 ## shared_ptr
 ### Introduce
 - The smart pointer is a class template that you `declare on the stack`, and initialize by using a weak pointer that `points to a heap-allocated object`.
@@ -54,4 +55,28 @@ std::shared_ptr<int> ptr1(new int(5));
             return 0;
         }
 ```
+## unique_ptr
+### Defination: 
+- It `can not be copied` to another unique_ptr, passed by value to a function, or used in any C++ Standard Library algorithm that requires copies to be made. A unique_ptr can only be moved.
 
+- In the range for loop, notice that the unique_ptr is passed by reference. If you try to pass by value here, the compiler will throw an error because the `unique_ptr copy constructor is deleted`.
+
+- We can use std::move() to change object’s owner:
+```c++
+    std::unique_ptr<int> ptr1 = std::make_unique<int>(10);
+    std::unique_ptr<int> ptr2 = std::move(ptr1);
+
+    // *ptr2 = 10; ptr1 -> null 
+    std::cout << ptr1 << std::endl; // print 0
+```
+
+### make_unique
+-When you make a call like 
+```c++ 
+    func(new A(), new B());
+``` 
+- The compiler may choose to evaluate the function arguments from left to right, or in any order it so wishes. Let's assume left to right evaluation: What happens when the first new expression succeeds but the second new expression throws?
+
+- The real danger here is when you catch such exception; Yes, you may have caught the `exception thrown by new B()`, and resume normal execution, but `new A() already succeeded`, and its `memory will be silently leaked`. Nobody to clean it up... * sobs...
+
+- But with make_unique, you `cannot have a leak` because `stack unwinding will happen (the destructor of the previously created object will run)`. Hence, having a preference for make_unique will constrain you towards exception safety.
