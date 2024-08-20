@@ -14,7 +14,7 @@
 ```c++
 std::shared_ptr<int> ptr1 = std::make_shared<int>(5);
 std::shared_ptr<int> ptr1 = new int(5);
-std::shared_ptr<int> ptr1(new int(5));
+std::shared_ptr<int> ptr1 (new int(5));
 ```
 - We can create a shared_ptr point to shared_ptr:
 ```c++
@@ -80,3 +80,84 @@ std::shared_ptr<int> ptr1(new int(5));
 - The real danger here is when you catch such exception; Yes, you may have caught the `exception thrown by new B()`, and resume normal execution, but `new A() already succeeded`, and its `memory will be silently leaked`. Nobody to clean it up... * sobs...
 
 - But with make_unique, you `cannot have a leak` because `stack unwinding will happen (the destructor of the previously created object will run)`. Hence, having a preference for make_unique will constrain you towards exception safety.
+
+# Raw Pointer
+## Defination 
+- A pointer is a variable that stores the memory address of another variable as its value.
+- Size of pointer is `4 bytes` for 32 bit OS and `8 bytes` for x64 bit OS.
+- `char* <=> std::string`
+- If you use raw pointer, when you don't need use it, must to `free` or `delete` and assign it equal `null`. If you only free or delete that not assign null. it will become `dangling pointer`.
+## Segmentation Fault
+The segmentation fault in C++ may occur in the case where the program tries to:
+
+- Access the memory that it does not own
+- Dereference nullptr or NULL pointer.
+- Modify Read-Only memory.
+### Segment Fault Scanerio
+1. Modifying a String Literal
+```c++
+int main()
+{
+    char* str;
+
+    // Stored in read only part of data segment //
+    str = "GfG";
+
+    // Problem:  trying to modify read only memory //
+    *(str + 1) = 'n';
+    return 0;
+}
+```
+
+2. Accessing an Address That is Freed
+```c++
+int main(void)
+{
+    // allocating memory to p
+    int* p = (int*)malloc(sizeof(int));
+
+    *p = 100;
+
+    // deallocated the space allocated to p
+    free(p);
+
+    //  segmentation fault
+    //  as now this statement is illegal
+    *p = 110;
+
+    return 0;
+}
+```
+
+3. Accessing out-of-bounds Array Index
+```c++
+int main()
+{
+    int arr[2];
+
+    // Accessing out of bound
+    arr[3] = 10;
+    return 0;
+}
+```
+
+4. Stack Overflow
+```c++
+int main()
+{
+
+    int array[2000000000];
+    return 0;
+}
+```
+
+5. Dereferencing an Uninitialized or NULL Pointer
+```c++
+int main()
+{
+    int* ptr;
+    int* nptr = NULL;
+    cout << *ptr << " " << *nptr;
+    return 0;
+}
+```
