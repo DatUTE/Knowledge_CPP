@@ -8,6 +8,19 @@
 
 **Note:** std::mutex is neither copyable nor movable
 
+### std::shared_mutex
+The shared_mutex class is a synchronization primitive that can be used to protect shared data from being simultaneously accessed by multiple threads. In contrast to other mutex types which facilitate exclusive access, a shared_mutex has two levels of access:
+- `shared` - several threads can share ownership of the same mutex.
+- `exclusive` - only one thread can own the mutex
+
+If one thread has acquired the exclusive lock (through `lock, try_lock`), no other threads can acquire the lock (including the shared).
+
+If one thread has acquired the shared lock (through `lock_shared, try_lock_shared`), no other thread can acquire the exclusive lock, but can acquire the shared lock.
+
+```c++
+smtx.lock_shared(); // better to use: std::shared_lock lock(smtx);
+```
+## Lock
 ### std::lock_guard
 -When a lock_guard object is created, it attempts to take ownership of the mutex it is given. When control leaves the scope in which the lock_guard object was created, the lock_guard is `destructed and the mutex is released`.
 ```c++
