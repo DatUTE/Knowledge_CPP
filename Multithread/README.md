@@ -2,9 +2,9 @@
 ### std::mutex 
 - offers exclusive, non-recursive ownership semantics:
 
-- A calling thread *owns* a `mutex` from the time that it successfully calls either [`lock`] or [`try_lock`].
-- When a thread owns a `mutex`, all other threads will block (for calls to [`lock`]) or receive a false return value (for [`try_lock`]) if they attempt to claim ownership of the `mutex`.
-- A calling thread must not own the `mutex` prior to calling [`lock`] or [`try_lock`].
+- A calling thread *owns* a `mutex` from the time that it successfully calls either `lock` or `try_lock`.
+- When a thread owns a `mutex`, all other threads will block (for calls to `lock`) or receive a false return value (for `try_lock`) if they attempt to claim ownership of the `mutex`.
+- A calling thread must not own the `mutex` prior to calling `lock` or `try_lock`.
 
 **Note:** std::mutex is neither copyable nor movable
 
@@ -20,6 +20,66 @@ If one thread has acquired the shared lock (through `lock_shared, try_lock_share
 ```c++
 smtx.lock_shared(); // better to use: std::shared_lock lock(smtx);
 ```
+
+### std::recursive_mutex (C++11)
+The recursive_mutex class is a synchronization primitive that can be used to protect shared data from being simultaneously accessed by multiple threads.
+
+If you want to call functions recursively, which lock the same mutex, then they either
+- have to use one `recursive mutex`, or
+- have to `unlock and lock` the `same non-recursive mutex` again and again (beware of concurrent threads!) (assuming this is semantically sound, it could still be a performance issue), or
+- have to somehow annotate which mutexes they already locked (simulating recursive ownership/mutexes).
+
+Example: `recursive_mutex`
+
+```c++
+class X
+{
+    std::recursive_mutex m;
+    std::string shared;
+public:
+    void fun1()
+    {
+        std::lock_guard<std::recursive_mutex> lk(m);
+        shared = "fun1";
+        std::cout << "in fun1, shared variable is now " << shared << '\n';
+    }
+    
+    void fun2()
+    {
+        std::lock_guard<std::recursive_mutex> lk(m);
+        shared = "fun2";
+        std::cout << "in fun2, shared variable is now " << shared << '\n';
+        fun1(); // recursive lock becomes useful here
+        std::cout << "back in fun2, shared variable is " << shared << '\n';
+    }
+};
+```
+
+Example: Using `non-recursive_mutex` have to unlock before.
+```c++
+class X
+{
+    std::mutex m;
+    std::string shared;
+public:
+    void fun1()
+    {
+        std::lock_guard<std::mutex> lk(m);
+        shared = "fun1";
+        std::cout << "in fun1, shared variable is now " << shared << '\n';
+    }
+    void fun2()
+    {
+        std::lock_guard<std::mutex> lk(m);
+        shared = "fun2";
+        std::cout << "in fun2, shared variable is now " << shared << '\n';
+        m.unlock();
+        fun1(); // recursive lock becomes useful here
+        std::cout << "back in fun2, shared variable is " << shared << '\n';
+    }
+};
+```
+
 ## Lock
 ### std::lock_guard
 -When a lock_guard object is created, it attempts to take ownership of the mutex it is given. When control leaves the scope in which the lock_guard object was created, the lock_guard is `destructed and the mutex is released`.
