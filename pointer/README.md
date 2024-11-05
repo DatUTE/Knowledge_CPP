@@ -5,9 +5,9 @@
 
 - The smart pointer destructor contains the call to delete, and because the smart pointer is declared on the stack, its destructor is invoked when the smart pointer goes out of scope, even if an exception is thrown somewhere further up thestack.
 ### Defination: 
-- The shared_ptr class describes an object that uses reference counting to manage resources. A shared_ptr objecteffectively holds a pointer to the resource that it owns or holds a null pointer. A resource can be owned by more thanone shared_ptr object; when the last shared_ptr object that owns a particular resource is destroyed, the resource is freed. The size is two pointers; one for the object and one for the shared control block that contains the reference count.
+- The shared_ptr class describes an object that uses reference counting to manage resources. A shared_ptr object effectively holds a pointer to the resource that it owns or holds a null pointer. A resource can be owned by more than one shared_ptr object; when the last shared_ptr object that owns a particular resource is destroyed, the resource is freed. The size is two pointers; one for the object and one for the shared control block that contains the reference count.
 
-- All the instances point to the same object, and share access to one `control block` that increments and decrements thereference count whenever a new shared_ptr is added, goes out of scope, or is reset. When the reference count reaches zero,the control block deletes the memory resource and itself.
+- All the instances point to the same object, and share access to one `control block` that increments and decrements the reference count whenever a new shared_ptr is added, goes out of scope, or is reset. When the reference count reaches zero,the control block deletes the memory resource and itself.
 
 ### Operation
 - Construction:
@@ -27,8 +27,9 @@ std::shared_ptr<int> ptr1 (new int(5));
 
 **Note:**
 - Pass the shared_ptr by `value`. This invokes the copy constructor, `increments the reference count`, and makes the calleean owner.
-- Pass the shared_ptr by `reference or const reference`. In this case, `the reference count isn't incremented`, and thecallee can access the pointer as long as the caller doesn't go out of scope.
+- Pass the shared_ptr by `reference or const reference`. In this case, `the reference count isn't incremented`, and thecallee can access the pointer as long as the caller doesn't go out of scope.
 - When a shared_ptr destroy (reference count = 0), it will call destructor of object.
+- `std::shared_ptr<T>(new T(args...))` may call a non-public constructor of T if executed in context where it is accessible, while `std::make_shared` requires public access to the selected constructor.
 
 ### Risk
 - Leak Memory:

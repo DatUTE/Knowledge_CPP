@@ -25,3 +25,8 @@ export PS1="\n\[\e[38;5;195m\]\w\[\033[0m\]\[\033[33m\]\n \[\e[38;5;51m\]evuxdat
 ~/repo/Knowledge_CPP/Bash
  evuxdat (main)$ 
 ```
+
+grep 'a': filter with pattern 'a'
+uniq -c : report or omit repeated lines; -c count occurence.
+sort    : sort line of the text file
+sed -r 's/\s+(.*) ()/\\2\\1/': ignore space, capture 1 and capture 2 and reverse them
