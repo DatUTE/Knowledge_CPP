@@ -1,10 +1,13 @@
 // Online C++ compiler to run C++ program online
 #include <iostream>
 #include <string>
+#include <memory>
 #include <curl/curl.h>
+#include "TaskWorker.h"
 
 // This function will be called to write the response data into a string
-size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::string* output) {
+size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::string* output) 
+{
     size_t total_size = size * nmemb;
     output->append(static_cast<char*>(contents), total_size);
     return total_size;
@@ -50,6 +53,35 @@ void GetData(const std::string& url) {
 int main() {
     // URL to make GET request to
     std::string url = "https://catfact.ninja/fact"; // Replace with your desired URL
-    GetData(url);
+    std::string url2 = "https://jsonplaceholder.typicode.com/posts/1"; // Replace with your desired URL
+    std::string url3 = "https://jsonplaceholder.typicode.com/posts/2"; // Replace with your desired URL
+    std::unique_ptr<TaskWorker> worker = std::make_unique<TaskWorker>();
+
+    auto callback = [&](const std::string& url)
+    {
+        GetData(url);
+    };
+    worker->setCallback(callback);
+    
+    /* Using std::this_thread::sleep_for to simulate some work 
+        between pushData to trigger request Data from server
+    */
+    worker->runThread();
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+    worker->pushData(url);
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+    worker->pushData(url2);
+    std::this_thread::sleep_for(std::chrono::milliseconds(300));
+
+    //worker->stop();
+    //std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+    worker->pushData(url3);
+
+    // Let the worker thread process the data
+    // The thread loop will query data from server within 10s continuously
+    std::this_thread::sleep_for(std::chrono::milliseconds(10000));
     return 0;
 }
