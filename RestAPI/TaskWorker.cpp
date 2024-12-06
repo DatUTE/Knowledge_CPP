@@ -1,11 +1,13 @@
 #include "TaskWorker.h"
 
-void TaskWorker::pushData(const std::string& data)
+void TaskWorker::pushData(const std::string& url)
 {
     // Lock the queue while pushing data
-    std::lock_guard<std::mutex> lock(queueMutex);
-
-    m_queue.push(data);
+    {
+        std::lock_guard<std::mutex> lock(queueMutex);
+        std::cout << "push data with url: " << url << std::endl;
+        m_queue.push(url);
+    }
 
     // Notify worker thread that new data is available
     cv.notify_one();
@@ -29,8 +31,8 @@ void TaskWorker::threadLoop()
         if(!m_queue.empty())
         {
             std::lock_guard<std::mutex> queueLock(queueMutex);
-            auto data = m_queue.front();
-            std::cout << "get data from link: " << data << std::endl;
+            auto url = m_queue.front();
+            std::cout << "get data from link: " << url << std::endl;
 
             // Unlock mutex before calling callback to avoid deadlock
             lock.unlock();
@@ -38,7 +40,7 @@ void TaskWorker::threadLoop()
             m_queue.pop();
 
             // Execute the callback with the data
-            m_task(data);
+            m_task(url);
             lock.lock();
         }
     }
