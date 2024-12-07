@@ -13,7 +13,6 @@ size_t HTTPSManager::WriteCallback(void* contents, size_t size, size_t nmemb, st
     return total_size;
 }
 
-
 void HTTPSManager::requestData(const std::string& url) 
 {
     std::cout << "start request data....\n";
@@ -94,4 +93,6 @@ void HTTPSManager::parserJsonData(const std::string& pattern)
     {
         std::cerr << "Error decoding JSON: " << e.what() << std::endl;
     }
+
+    m_responseData = "";
 }

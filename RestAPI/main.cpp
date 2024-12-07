@@ -11,7 +11,7 @@ int main()
     // URL to make GET request to
     // std::string url = "https://catfact.ninja/fact"; // Replace with your desired URL
     std::string url2 = "https://jsonplaceholder.typicode.com/posts/1"; // Replace with your desired URL
-    // std::string url3 = "https://jsonplaceholder.typicode.com/posts/2"; // Replace with your desired URL
+    std::string url3 = "https://jsonplaceholder.typicode.com/posts/2"; // Replace with your desired URL
     std::unique_ptr<TaskWorker> worker = std::make_unique<TaskWorker>();
 
     auto callback = [&](const std::string& p_url)
@@ -24,15 +24,16 @@ int main()
         between pushData to trigger request Data from server
     */
     worker->runThread();
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
     worker->pushData(url2);
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
-
     HTTPSManager::getInstance().parserJsonData("title");
 
-    // worker->pushData(url2);
-    // std::this_thread::sleep_for(std::chrono::milliseconds(300));
+    worker->pushData(url3);
+    std::this_thread::sleep_for(std::chrono::milliseconds(300));
+    HTTPSManager::getInstance().parserJsonData("title");
+
 
     // //worker->stop();
     // //std::this_thread::sleep_for(std::chrono::milliseconds(1000));
