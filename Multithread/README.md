@@ -113,8 +113,99 @@ unique_lock( mutex_type& m, std::adopt_lock_t t );
 ```
 
 ### std::scoped_lock
+- The key feature of std::scoped_lock is that it can lock multiple mutexes simultaneously and guarantees that they are unlocked in the correct order when the lock object is destroyed.
 - When a scoped_lock object is created, it attempts to take ownership of the mutexes it is given. When control leaves the scope in which the scoped_lock object was created, the scoped_lock is destructed and the `mutexes` are released.
 
 ```c++ 
 std::scoped_lock lock(e1.m, e2.m); 
+```
+
+### std::defer_lock 
+- A tag used with std::lock_guard or std::unique_lock in C++ to defer the locking of a mutex. 
+It provides a way to create a lock object `without immediately locking the mutex`, allowing for more control over when the mutex is actually locked.
+
+```c++
+#include <iostream>
+#include <mutex>
+#include <thread>
+
+std::mutex mtx;
+
+void print_numbers(int id) {
+    // Create the unique_lock object but do not lock the mutex yet
+    std::unique_lock<std::mutex> lock(mtx, std::defer_lock);
+    // Do some work without holding the lock
+    std::cout << "Thread " << id << " is doing some work." << std::endl;
+    // Now, explicitly lock the mutex at a later point in time
+
+    lock.lock();
+    std::cout << "Thread " << id << " is now locked and printing numbers." << std::endl;
+    // Simulate some operation
+    for (int i = 0; i < 5; ++i) {
+        std::cout << "Thread " << id << ": " << i << std::endl;
+    }
+
+    // Lock is automatically released when it goes out of scope
+}
+
+int main() {
+    std::thread t1(print_numbers, 1);
+    std::thread t2(print_numbers, 2);
+
+    t1.join();
+    t2.join();
+
+    return 0;
+}
+```
+### std::adopt_lock 
+- std::adopt_lock is a tag used with std::unique_lock in C++ to indicate that the lock object is not responsible for locking the associated mutex.
+Instead, the mutex is assumed to be already locked when the std::unique_lock is created.
+This tag is useful when you need to pass a mutex that's already locked by another part of your program to a std::unique_lock object, without trying to lock it again.
+
+* When to Use std::adopt_lock?
+You would use std::adopt_lock in situations where:
+
+- You already have a mutex that has been locked by some other code (maybe by a std::lock_guard or another std::unique_lock).
+- You need to pass that locked mutex into a std::unique_lock but do not want it to attempt locking the mutex again (which would cause undefined behavior or a deadlock).
+
+**Note:** Only use std::adopt_lock when you're sure the mutex is already locked. If you try to use std::adopt_lock on an unlocked mutex, it will lead to undefined behavior.
+
+```c++
+#include <iostream>
+#include <mutex>
+#include <thread>
+
+std::mutex mtx;
+
+void print_numbers(int id) {
+    // Lock the mutex using std::lock_guard
+    std::lock_guard<std::mutex> lock(mtx);
+    std::cout << "Thread " << id << " has locked the mutex." << std::endl;
+
+    // Now create a unique_lock, but do not lock the mutex again
+    std::unique_lock<std::mutex> unique_lock(mtx, std::adopt_lock);
+    
+    // The mutex is now adopted by unique_lock, and it does not try to lock it again
+    std::cout << "Thread " << id << " has adopted the already locked mutex." << std::endl;
+    
+    // Do some work while holding the lock
+    std::cout << "Thread " << id << " is printing numbers." << std::endl;
+    for (int i = 0; i < 5; ++i) {
+        std::cout << "Thread " << id << ": " << i << std::endl;
+    }
+
+    // Mutex will be automatically released when unique_lock goes out of scope
+}
+
+int main() {
+    // Start two threads
+    std::thread t1(print_numbers, 1);
+    std::thread t2(print_numbers, 2);
+
+    t1.join();
+    t2.join();
+
+    return 0;
+}
 ```
