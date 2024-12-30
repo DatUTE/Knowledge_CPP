@@ -19,6 +19,36 @@ If one thread has acquired the shared lock (through `lock_shared, try_lock_share
 
 ```c++
 smtx.lock_shared(); // better to use: std::shared_lock lock(smtx);
+
+#include <chrono>
+#include <iostream>
+#include <shared_mutex>
+#include <syncstream>
+#include <thread>
+#include <mutex>
+ 
+std::shared_mutex m;
+int i = 10;
+ 
+void read_shared_var(int id)
+{
+    // both the threads get access to the integer i
+    std::shared_lock<std::shared_mutex> slk(m);
+    const int ii = i; // reads global i
+
+    std::osyncstream(std::cout) << '#' << id << " read i as " << ii << "...\n";
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    std::osyncstream(std::cout) << '#' << id << " woke up..." << std::endl;
+}
+ 
+int main()
+{
+    std::thread r1{read_shared_var, 1};
+    std::thread r2{read_shared_var, 2};
+
+    r1.join();
+    r2.join();
+}
 ```
 
 ### std::recursive_mutex (C++11)
@@ -95,7 +125,9 @@ void safe_increment(int iterations)
 }
 ```
 
-**Note:** The lock_guard class is `non-copyable` (Copy constructor is deleted)
+**Note:** 
+- The lock_guard class is `non-copyable` (Copy constructor is deleted)
+- only lock with mode `exclusive` althought you use std::shared_mutex
 
 ### std::unique_lock
 - The class unique_lock is movable, but not copyable 
