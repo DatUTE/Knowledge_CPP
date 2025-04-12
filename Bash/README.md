@@ -13,7 +13,7 @@
     // [2eb7e5e] [2024-06-18] [DuyDat] Noref: seperate some method to utils
 ```
 ### Linux
--Custom PS1:
+- Custom PS1:
 ```bat 
 parse_git_branch(){
         git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
@@ -26,7 +26,7 @@ export PS1="\n\[\e[38;5;195m\]\w\[\033[0m\]\[\033[33m\]\n \[\e[38;5;51m\]evuxdat
  evuxdat (main)$ 
 ```
 
-grep 'a': filter with pattern 'a'
-uniq -c : report or omit repeated lines; -c count occurence.
-sort    : sort line of the text file
-sed -r 's/\s+(.*) ()/\\2\\1/': ignore space, capture 1 and capture 2 and reverse them
+- grep 'a': filter with pattern 'a'
+- uniq -c : report or omit repeated lines; -c count occurence.
+- sort    : sort line of the text file
+- sed -r 's/\s+(.*) ()/\\2\\1/': ignore space, capture 1 and capture 2 and reverse them
