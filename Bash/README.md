@@ -10,7 +10,7 @@
     // [c11cd04] [2024-06-20] [DuyDat] Noref: replace raw pointer to smart pointer
     // [58de3ed] [2024-06-20] [DuyDat] Noref: move some function from prj2.cpp to utils
     // [9b77e2e] [2024-06-18] [DuyDat] Noref: seperate chechValid.h and add .gitignore
-    // [2eb7e5e] [2024-06-18] [DuyDat] Noref: seperate some method to utils
+    // [2eb7e5e] [2024-06-18] [DuyDat] Noref: seperate some method to utils.
 ```
 ### Linux
 - Custom PS1:
