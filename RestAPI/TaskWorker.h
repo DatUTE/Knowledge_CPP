@@ -34,6 +34,5 @@ class TaskWorker
     std::condition_variable cv;
     std::atomic<bool> isRunning {false};
     std::mutex m_mtx;
-    std::mutex queueMutex;
     std::queue<std::string> m_queue;
 };
